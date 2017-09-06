@@ -1,61 +1,94 @@
 package com.bowling.challenge;
 
 
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class BowlingChallengeTest {
 
+    Round[] rounds = new Round[9];
+    BowlingChallenge bowlingGame = new BowlingChallenge();
+
     @Test (expected = IllegalArgumentException.class)
     public final void getRandomIntWithWrongOrderedParameters(){
-        BowlingChallenge.getRandomInt(10, 0);
+        for(int i = 0; i < rounds.length; i++){
+            Round round = new Round();
+            rounds[i] = round;
+            rounds[i].getRandomInt(10, 0);
+        }
+
     }
 
     @Test
     public final void getRandomIntInCorrectRange(){
         int totalAmountOfPinsAvailable = 10;
         int channelHit = 0;
-        int pinsHit = BowlingChallenge.getRandomInt(channelHit, totalAmountOfPinsAvailable);
-        Assert.assertTrue( totalAmountOfPinsAvailable >= pinsHit && pinsHit >= channelHit );
+        for(int i = 0; i < rounds.length; i++) {
+            Round round = new Round();
+            rounds[i] = round;
+            int pinsHit = rounds[i].getRandomInt(channelHit, totalAmountOfPinsAvailable);
+            Assert.assertTrue(totalAmountOfPinsAvailable >= pinsHit && pinsHit >= channelHit);
+        }
     }
 
     @Test
     public final void getAmountOfPinsKnockedOnFirstTossRangeCheck(){
-        BowlingChallenge.doFirstToss(0);
+
         int totalAmountOfPinsAvailable = 10;
         int channelHit = 0;
-        Assert.assertTrue( totalAmountOfPinsAvailable >=
-                BowlingChallenge.rounds[0].getAmountPinsHitOnFirstToss() &&
-                BowlingChallenge.rounds[0].getAmountPinsHitOnFirstToss() >= channelHit );
+        for(int i = 0; i < rounds.length; i++) {
+            Round round = new Round();
+            rounds[i] = round;
+            rounds[i].doFirstToss();
+            Assert.assertTrue(totalAmountOfPinsAvailable >=
+                    rounds[i].getAmountPinsHitOnFirstToss() &&
+                    rounds[i].getAmountPinsHitOnFirstToss() >= channelHit);
+        }
     }
 
     @Test
     public final void getAmountOfPinsKnockedOnSecondTossRangeCheck(){
-        int pinsHitOnFirstToss = BowlingChallenge.rounds[0].getAmountPinsHitOnFirstToss();
-        BowlingChallenge.doSecondToss(0);
-        Assert.assertTrue(pinsHitOnFirstToss + BowlingChallenge.rounds[0].getAmountPinsHitOnSecondToss() <= 10);
+        int pinsHitOnFirstToss;
+
+        for(int i = 0; i < rounds.length; i++) {
+            Round round = new Round();
+            rounds[i] = round;
+            pinsHitOnFirstToss = rounds[i].getAmountPinsHitOnFirstToss();
+            rounds[i].doSecondToss();
+            Assert.assertTrue(pinsHitOnFirstToss + rounds[i].getAmountPinsHitOnSecondToss() <= 10);
+        }
     }
 
     @Test
-    public final void knockedALlPins(){
-        Assert.assertTrue(BowlingChallenge.knockedAllPins(10));
+    public final void knockedAllPins(){
+        for(int i = 0; i < rounds.length; i++) {
+            Round round = new Round();
+            rounds[i] = round;
+            Assert.assertTrue(rounds[i].knockedAllPins(10));
+        }
     }
 
     @Test
     public final void detectStrike(){
-        BowlingChallenge.doFirstToss(0);
-        Assert.assertTrue(BowlingChallenge.rounds[0].getAmountPinsHitOnFirstToss() == 10 &&
-                BowlingChallenge.rounds[0].hasStrike);
+        for(int i = 0; i < rounds.length; i++) {
+            Round round = new Round();
+            rounds[i] = round;
+            rounds[i].doFirstToss();
+            Assert.assertEquals(rounds[i].getAmountPinsHitOnFirstToss() == 10,
+                    rounds[i].hasStrike);
+        }
     }
 
     @Test
     public final void detectSpare(){
-        BowlingChallenge.doFirstToss(0);
-        BowlingChallenge.doSecondToss(0);
-        Assert.assertTrue(BowlingChallenge.rounds[0].getAmountPinsHitOnFirstToss() +
-                BowlingChallenge.rounds[0].getAmountPinsHitOnSecondToss() == 10 &&
-                BowlingChallenge.rounds[0].hasSpare);
+        for(int i = 0; i < rounds.length; i++) {
+            Round round = new Round();
+            rounds[i] = round;
+            rounds[i].doFirstToss();
+            rounds[i].doSecondToss();
+            Assert.assertEquals(rounds[i].getAmountPinsHitOnFirstToss() +
+                    rounds[i].getAmountPinsHitOnSecondToss() == 10, rounds[i].hasSpare);
+        }
     }
 
 

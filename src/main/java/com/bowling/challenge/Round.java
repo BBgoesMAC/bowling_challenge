@@ -1,11 +1,14 @@
 package com.bowling.challenge;
 
+import java.util.Random;
+
 public class Round {
 
     int id;
     int amountPinsHitOnFirstToss;
     int amountPinsHitOnSecondToss;
     int totalPoints;
+    int currentSummedUpTotalPoints;
     int amountPinsHitOnBonusRound;
 
     boolean hasStrike;
@@ -40,8 +43,16 @@ public class Round {
         }
     }
 
+    public void setAmountPinsHitOnBonusRound(int amountPinsHitOnBonusRound){
+        this.amountPinsHitOnBonusRound = amountPinsHitOnBonusRound;
+    }
+
     public void setTotalPoints(int totalPoints){
         this.totalPoints = totalPoints;
+    }
+
+    public void setCurrentSummedUpTotalPoints(int currentSummedUpTotalPoints){
+        this.currentSummedUpTotalPoints = currentSummedUpTotalPoints;
     }
 
     public void hasStrike(boolean hasStrike){
@@ -64,7 +75,64 @@ public class Round {
         return amountPinsHitOnSecondToss;
     }
 
+    public int getAmountPinsHitOnBonusRound(){
+        return amountPinsHitOnBonusRound;
+    }
+
     public int getTotalPoints(){
         return totalPoints;
+    }
+
+    public int getCurrentSummedUpTotalPoints(){
+        return currentSummedUpTotalPoints;
+    }
+
+
+
+    /**
+     * Return a random int value in the range between zero and 10.
+     * In the first toss all(10) pins are available.
+     * Therefore, the amount of knocked pins can be between zero and 10.
+     */
+    public void doFirstToss(){
+        setAmountPinsHitOnFirstToss( getRandomInt(0, 10) );
+
+        //check for strike
+        if (knockedAllPins(getAmountPinsHitOnFirstToss())){
+            hasStrike(true);
+        }
+    }
+
+    public void doSecondToss(){
+        setAmountPinsHitOnSecondToss(
+                getRandomInt(0, 10 - getAmountPinsHitOnFirstToss()));
+
+        // check for spare
+        if(knockedAllPins(getAmountPinsHitOnFirstToss() + getAmountPinsHitOnSecondToss())){
+            hasStrike(false);
+            hasSpare(true);
+        }
+    }
+
+    public boolean knockedAllPins(int knockedPins){
+        return knockedPins == 10;
+    }
+
+    /**
+     * Return a random int value in the range between the passed arguments.
+     *
+     * @param   min     the minimum integer as lower limit
+     * @param   max     the maximum integer as upper limit
+     * @return          return a random integer in the passed range
+     */
+    public int getRandomInt(int min, int max){
+
+        if (min >= max) {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+
+        Random randomValue = new Random();
+        int randomInt = randomValue.nextInt((max - min) + 1) + min;
+        return randomInt;
     }
 }
