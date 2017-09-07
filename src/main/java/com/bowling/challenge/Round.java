@@ -102,7 +102,7 @@ public class Round {
      * Therefore, the amount of knocked pins can be between zero and 10.
      */
     public void doFirstToss(){
-        setAmountPinsHitOnFirstToss( getRandomInt(0, 10) );
+        setAmountPinsHitOnFirstToss( getRandomInt(9, 10) );
 
         //check for strike
         if (knockedAllPins(getAmountPinsHitOnFirstToss())){

@@ -13,24 +13,31 @@ public class BowlingChallenge {
     Scanner scanner;
 
     public static void main(String[] args){
-        System.out.println("Welcome to the Bowling Challenge!");
-        System.out.println(" ");
-        Scanner scanUserInputNewGame = new Scanner(System.in);
-        System.out.println("---Pres any key to start a new game---");
-        BowlingChallenge bowlingGame = new BowlingChallenge();
-        bowlingGame.startGame();
+        while(true) {
+            System.out.println("Welcome to the Bowling Challenge!");
+            System.out.println(" ");
+            Scanner scanUserInputNewGame = new Scanner(System.in);
+            System.out.println("--- Press any key to start a new game ---");
+            while(!scanUserInputNewGame.hasNextLine()) {
+            }
+            BowlingChallenge bowlingGame = new BowlingChallenge();
+            bowlingGame.startGame();
 
 
-        bowlingGame.initBowlingGame();
-
+            bowlingGame.initBowlingGame();
+            System.out.println("Thank you for playing the Bowling Challenge");
+            scanUserInputNewGame = new Scanner(System.in);
+            System.out.println("--- Press any key to restart the game ---");
+            while(!scanUserInputNewGame.hasNextLine()) {
+            }
+        }
 
     }
 
     public void startGame(){
         initBowlingGame();
         for (int i = 0; i < 10; i++) {
-
-            System.out.println("Next toss? (press enter)");
+            System.out.println("Toss the bowling ball by pressing enter");
             scanner = new Scanner(System.in);
             while(!scanner.hasNextLine()) {
             }
@@ -47,7 +54,7 @@ public class BowlingChallenge {
             // skip second toss if the first toss was a strike
             if(!rounds[i].hasStrike){
 
-                System.out.println("Next toss? (press enter)");
+                System.out.println("Second toss? (press enter)");
                 scanner = new Scanner(System.in);
                 while(!scanner.hasNextLine()) {
                 }
@@ -57,11 +64,14 @@ public class BowlingChallenge {
                 // always update the sums after the second toss
                 calculateSums(currentRound);
                 if(rounds[i].hasSpare){
-                    System.out.println("ITS A SPARE!!");
+                    System.out.println(" --- NICE SPARE --- ");
+                    System.out.println(" ");
                 }
                 displayResultsTable();
             }else{
-                System.out.println("ITS A STRIKE!!");
+                System.out.println(" ----- !!!! ---- ITS A STRIKE ----- !!!! ----");
+                System.out.println(" ");
+
             }
 
             if(currentRound == 10 && rounds[i].hasStrike){
@@ -84,6 +94,7 @@ public class BowlingChallenge {
                 while(!scanner.hasNextLine()) {
                 }
                 rounds[i].doBonusTossAfterSpare();
+                currentTossDone = 3;
                 displayResultsTable();
             }
             currentRound++;
@@ -121,17 +132,23 @@ public class BowlingChallenge {
                         "| "+displayResultForToss(9, 1)+" |"+displayResultForToss(9, 2)+
                         "| "+displayResultForToss(10, 1)+" |"+displayResultForToss(10, 2)+
                         "|"+displayResultForToss(10, 3)+ "| \n" +
-                        "|  "+displayTotalPointsForRound(1)+" |  "+displayTotalPointsForRound(2)+
-                        " |  "+displayTotalPointsForRound(3)+" |  "+displayTotalPointsForRound(4)+
-                        " |  "+displayTotalPointsForRound(5)+" |  "+displayTotalPointsForRound(6)+
-                        " |  "+displayTotalPointsForRound(7)+" |  "+displayTotalPointsForRound(8)+
-                        " |  "+displayTotalPointsForRound(9)+" |  "+displayTotalPointsForRound(10)+
-                        "   |\n" +
+                        "|"+String.format("%5s", displayTotalPointsForRound(1))+
+                        "|"+String.format("%5s", displayTotalPointsForRound(2))+
+                        "|"+String.format("%5s", displayTotalPointsForRound(3))+
+                        "|"+String.format("%5s", displayTotalPointsForRound(4))+
+                        "|"+String.format("%5s", displayTotalPointsForRound(5))+
+                        "|"+String.format("%5s", displayTotalPointsForRound(6))+
+                        "|"+String.format("%5s", displayTotalPointsForRound(7))+
+                        "|"+String.format("%5s", displayTotalPointsForRound(8))+
+                        "|"+String.format("%5s", displayTotalPointsForRound(9))+
+                        "|"+String.format("%7s", displayTotalPointsForRound(10))+
+                        "|\n" +
                         "'-----'-----'-----'-----'-----'-----'-----'-----'-----'-------'");
     }
 
     public String displayResultForToss(int round, int toss){
         int arrayIndexForCurrentRound = round - 1;
+
         if(toss == 1){
             if(rounds[arrayIndexForCurrentRound].hasStrike){
                 return "X";
@@ -144,27 +161,44 @@ public class BowlingChallenge {
             }else if(rounds[arrayIndexForCurrentRound].getId() > currentRound||
                     (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1)) {
                 return " ";
+            }else if(rounds[arrayIndexForCurrentRound].hasStrike ||
+                    (rounds[arrayIndexForCurrentRound].hasStrike && currentRound != 10)){
+                // if first toss was a strike only display value for second toss if in round 10
+                return " ";
             }else return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnSecondToss();
         }else if (toss == 3) {
-            if(currentRound == 10 && rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusToss() == 10){
+            if (currentRound == 10 && rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusToss() == 10) {
                 return "X";
-            }else if (rounds[arrayIndexForCurrentRound].getId() > currentRound ||
-                    (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1)){
+            } else if (currentRound == 10 && (
+                    (rounds[9].hasSpare && currentTossDone == 3) ||
+                            (rounds[9].hasStrike && currentTossDone == 3) ||
+                            (!rounds[9].hasStrike && !rounds[9].hasSpare && currentTossDone == 2))) {
+                return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusToss();
+            } else if (currentRound != 10) {
                 return " ";
-            }else return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusToss();
-        }else{
-            throw new IllegalArgumentException("bad value for toss passed");
-        }
+            }
+        }else throw new IllegalArgumentException("bad value for toss passed");
+        return " ";
     }
 
     public String displayTotalPointsForRound(int round){
 
         int arrayIndexForCurrentRound = round - 1;
         if (rounds[arrayIndexForCurrentRound].getId() > currentRound ||
-                (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1))
+                (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1) &&
+                        currentRound != 10) {
             return "  ";
-        else
+        }else if (currentRound == 10 && (
+                (rounds[9].hasSpare && currentTossDone == 3) ||
+                (rounds[9].hasStrike && currentTossDone == 3) ||
+                        (!rounds[9].hasStrike && !rounds[9].hasSpare && currentTossDone == 2)
+                )){
+            // wait for bonus toss in round 10 before displaying the total points
             return "" + rounds[arrayIndexForCurrentRound].getCurrentSummedUpTotalPoints();
+        }else if(currentRound != 10){
+            return "" + rounds[arrayIndexForCurrentRound].getCurrentSummedUpTotalPoints();
+        }else return " ";
+
     }
 
     public void calculateSums(int currentRound){
@@ -211,18 +245,37 @@ public class BowlingChallenge {
 
     public int calculateSumForStrike(int round){
         int strikeBonus;
-        if(rounds[round + 1].hasStrike){
-            strikeBonus = calculateSumForStrike(rounds[round + 1].getId());
-        }else if (rounds[round + 1].hasSpare){
-            strikeBonus = calculateSumForSpare(rounds[round + 1].getId());
-        }else strikeBonus = rounds[round + 1].getAmountPinsHitOnFirstToss() + rounds[round + 1].getAmountPinsHitOnSecondToss() + 10;
+        if(round + 2 > 9){
+            if(rounds[9].hasStrike){
+                strikeBonus = 20 + rounds[9].getAmountPinsHitOnSecondToss();
+            }else if(rounds[9].getAmountPinsHitOnSecondToss() == 10){
+                strikeBonus = 30;
+            }else{
+                strikeBonus = 10 + rounds[9].getAmountPinsHitOnFirstToss() + rounds[9].getAmountPinsHitOnSecondToss();
+            }
+        }else if(rounds[round + 1].hasStrike) {
+                if (rounds[round + 2].hasStrike) {
+                    strikeBonus = 30;
+                } else {
+                   strikeBonus = 20 + rounds[round + 2].getAmountPinsHitOnFirstToss();
+                }
+        }else if(rounds[round + 1].hasSpare){
+            strikeBonus = 20;
+        }else {
+            strikeBonus = 10 + rounds[round + 1].getAmountPinsHitOnFirstToss() + rounds[round + 1].getAmountPinsHitOnSecondToss();
+        }
         return strikeBonus;
     }
 
     public int calculateSumForSpare(int round){
         int spareBonus;
-        if(rounds[round + 1].hasStrike){
-            spareBonus = calculateSumForStrike(rounds[round + 1].getId());
+        if(round + 1 > 9){
+            if(rounds[9].hasStrike){
+                spareBonus = 20;
+            }else spareBonus = 10 + rounds[9].getAmountPinsHitOnFirstToss();
+
+        }else if(rounds[round + 1].hasStrike){
+            spareBonus = 20;
         }else spareBonus = rounds[round + 1].getAmountPinsHitOnFirstToss() + 10;
         return spareBonus;
     }
