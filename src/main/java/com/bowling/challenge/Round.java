@@ -9,7 +9,9 @@ public class Round {
     int amountPinsHitOnSecondToss;
     int totalPoints;
     int currentSummedUpTotalPoints;
-    int amountPinsHitOnBonusRound;
+    int amountPinsHitOnBonusToss;
+
+    int bonusPoints;
 
     boolean hasStrike;
     boolean hasSpare;
@@ -17,6 +19,7 @@ public class Round {
     public Round(){
         this.hasStrike = false;
         this.hasSpare = false;
+        this.bonusPoints = 0;
     }
 
     public Round(int id){
@@ -43,8 +46,8 @@ public class Round {
         }
     }
 
-    public void setAmountPinsHitOnBonusRound(int amountPinsHitOnBonusRound){
-        this.amountPinsHitOnBonusRound = amountPinsHitOnBonusRound;
+    public void setAmountPinsHitOnBonusToss(int amountPinsHitOnBonusToss){
+        this.amountPinsHitOnBonusToss = amountPinsHitOnBonusToss;
     }
 
     public void setTotalPoints(int totalPoints){
@@ -75,8 +78,8 @@ public class Round {
         return amountPinsHitOnSecondToss;
     }
 
-    public int getAmountPinsHitOnBonusRound(){
-        return amountPinsHitOnBonusRound;
+    public int getAmountPinsHitOnBonusToss(){
+        return amountPinsHitOnBonusToss;
     }
 
     public int getTotalPoints(){
@@ -85,6 +88,10 @@ public class Round {
 
     public int getCurrentSummedUpTotalPoints(){
         return currentSummedUpTotalPoints;
+    }
+
+    public int getBonusPoints(){
+        return bonusPoints;
     }
 
 
@@ -114,6 +121,22 @@ public class Round {
         }
     }
 
+    public void doFirstBonusTossAfterStrike(){
+        setAmountPinsHitOnSecondToss(
+                getRandomInt(0, 10));
+    }
+
+    public void doSecondBonusTossAfterStrike(){
+        setAmountPinsHitOnBonusToss(
+                getRandomInt(0, 10));
+    }
+
+
+    public void doBonusTossAfterSpare(){
+        setAmountPinsHitOnBonusToss(
+                getRandomInt(0, 10));
+    }
+
     public boolean knockedAllPins(int knockedPins){
         return knockedPins == 10;
     }
@@ -127,7 +150,7 @@ public class Round {
      */
     public int getRandomInt(int min, int max){
 
-        if (min >= max) {
+        if (min > max) {
             throw new IllegalArgumentException("max must be greater than min");
         }
 

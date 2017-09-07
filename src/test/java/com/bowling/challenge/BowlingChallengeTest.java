@@ -10,7 +10,7 @@ public class BowlingChallengeTest {
     BowlingChallenge bowlingGame = new BowlingChallenge();
 
     @Test (expected = IllegalArgumentException.class)
-    public final void getRandomIntWithWrongOrderedParameters(){
+    public void getRandomIntWithWrongOrderedParameters(){
         for(int i = 0; i < rounds.length; i++){
             Round round = new Round();
             rounds[i] = round;
@@ -20,7 +20,7 @@ public class BowlingChallengeTest {
     }
 
     @Test
-    public final void getRandomIntInCorrectRange(){
+    public void getRandomIntInCorrectRange(){
         int totalAmountOfPinsAvailable = 10;
         int channelHit = 0;
         for(int i = 0; i < rounds.length; i++) {
@@ -32,7 +32,7 @@ public class BowlingChallengeTest {
     }
 
     @Test
-    public final void getAmountOfPinsKnockedOnFirstTossRangeCheck(){
+    public void getAmountOfPinsKnockedOnFirstTossRangeCheck(){
 
         int totalAmountOfPinsAvailable = 10;
         int channelHit = 0;
@@ -47,7 +47,7 @@ public class BowlingChallengeTest {
     }
 
     @Test
-    public final void getAmountOfPinsKnockedOnSecondTossRangeCheck(){
+    public void getAmountOfPinsKnockedOnSecondTossRangeCheck(){
         int pinsHitOnFirstToss;
 
         for(int i = 0; i < rounds.length; i++) {
@@ -60,7 +60,7 @@ public class BowlingChallengeTest {
     }
 
     @Test
-    public final void knockedAllPins(){
+    public void knockedAllPins(){
         for(int i = 0; i < rounds.length; i++) {
             Round round = new Round();
             rounds[i] = round;
@@ -69,7 +69,7 @@ public class BowlingChallengeTest {
     }
 
     @Test
-    public final void detectStrike(){
+    public void detectStrike(){
         for(int i = 0; i < rounds.length; i++) {
             Round round = new Round();
             rounds[i] = round;
@@ -80,7 +80,7 @@ public class BowlingChallengeTest {
     }
 
     @Test
-    public final void detectSpare(){
+    public void detectSpare(){
         for(int i = 0; i < rounds.length; i++) {
             Round round = new Round();
             rounds[i] = round;

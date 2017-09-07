@@ -64,6 +64,28 @@ public class BowlingChallenge {
                 System.out.println("ITS A STRIKE!!");
             }
 
+            if(currentRound == 10 && rounds[i].hasStrike){
+                System.out.println("You earned a bonus toss! (press enter to toss)");
+                scanner = new Scanner(System.in);
+                while(!scanner.hasNextLine()) {
+                }
+                rounds[i].doFirstBonusTossAfterStrike();
+                displayResultsTable();
+
+                System.out.println("Do your second bonus toss! (press enter)");
+                scanner = new Scanner(System.in);
+                while(!scanner.hasNextLine()) {
+                }
+                rounds[i].doSecondBonusTossAfterStrike();
+                displayResultsTable();
+            }else if(currentRound == 10 && rounds[i].hasSpare){
+                System.out.println("You earned a bonus toss! (press enter)");
+                scanner = new Scanner(System.in);
+                while(!scanner.hasNextLine()) {
+                }
+                rounds[i].doBonusTossAfterSpare();
+                displayResultsTable();
+            }
             currentRound++;
             currentTossDone = 0;
         }
@@ -76,10 +98,6 @@ public class BowlingChallenge {
             rounds[i] = round;
 
             rounds[i].setId(i + 1);
-            rounds[i].setAmountPinsHitOnFirstToss(-1);
-            rounds[i].setAmountPinsHitOnSecondToss(-1);
-            rounds[i].setTotalPoints(-1);
-            rounds[i].setAmountPinsHitOnBonusRound(-1);
         }
         currentRound = 1;
     }
@@ -112,76 +130,100 @@ public class BowlingChallenge {
                         "'-----'-----'-----'-----'-----'-----'-----'-----'-----'-------'");
     }
 
-    public String displayResultForToss(int currentRound, int toss){
-        int arrayIndexForCurrentRound = currentRound - 1;
+    public String displayResultForToss(int round, int toss){
+        int arrayIndexForCurrentRound = round - 1;
         if(toss == 1){
             if(rounds[arrayIndexForCurrentRound].hasStrike){
                 return "X";
-            }else if(rounds[arrayIndexForCurrentRound].getAmountPinsHitOnFirstToss() == -1){
+            }else if(rounds[arrayIndexForCurrentRound].getId() > currentRound){
                 return " ";
             }else return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnFirstToss();
         }else if(toss == 2){
             if(rounds[arrayIndexForCurrentRound].hasSpare){
                 return "/";
-            }else if(rounds[arrayIndexForCurrentRound].getAmountPinsHitOnSecondToss() == -1) {
+            }else if(rounds[arrayIndexForCurrentRound].getId() > currentRound||
+                    (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1)) {
                 return " ";
             }else return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnSecondToss();
         }else if (toss == 3) {
-            if(currentRound == 10 && rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusRound() == 10){
+            if(currentRound == 10 && rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusToss() == 10){
                 return "X";
-            }else if (rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusRound() == -1){
+            }else if (rounds[arrayIndexForCurrentRound].getId() > currentRound ||
+                    (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1)){
                 return " ";
-            }else return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusRound();
+            }else return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusToss();
         }else{
             throw new IllegalArgumentException("bad value for toss passed");
         }
     }
 
-    public String displayTotalPointsForRound(int currentRound){
+    public String displayTotalPointsForRound(int round){
 
-        int arrayIndexForCurrentRound = currentRound - 1;
-        if (rounds[arrayIndexForCurrentRound].getTotalPoints() == -1)
+        int arrayIndexForCurrentRound = round - 1;
+        if (rounds[arrayIndexForCurrentRound].getId() > currentRound ||
+                (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1))
             return "  ";
         else
             return "" + rounds[arrayIndexForCurrentRound].getCurrentSummedUpTotalPoints();
     }
 
     public void calculateSums(int currentRound){
-        int currentSumOfAllPlayedRounds = 0;
-        int arrayIndexForCurrentRound = currentRound - 1;
-        if(rounds[arrayIndexForCurrentRound].hasStrike){
-            //bonusCounter += 2;
-        }else if(rounds[arrayIndexForCurrentRound].hasSpare){
-            System.out.println("Spare increases bonus");
-            bonusCounter++;
-        }else if(currentTossDone == 2){
-            //if(bonusCounter == 1){
-                //rounds[arrayIndexForCurrentRound - 1].setTotalPoints(rounds[arrayIndexForCurrentRound].getAmountPinsHitOnFirstToss() + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnSecondToss() + 10);
-                //rounds[arrayIndexForCurrentRound].setTotalPoints(rounds[arrayIndexForCurrentRound].getAmountPinsHitOnFirstToss() + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnSecondToss());
-                //System.out.println("Apply bonus: " + rounds[arrayIndexForCurrentRound - 1].getTotalPoints());
-                //bonusCounter = 0;
-            //}else{
-                rounds[arrayIndexForCurrentRound].setTotalPoints(rounds[arrayIndexForCurrentRound].getAmountPinsHitOnFirstToss() + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnSecondToss());
-            //}
-        }else {
-            // update previous cells with spares and strikes
-        }
-        System.out.println("currentSumBeforeLoop" +
-                ": " + currentSumOfAllPlayedRounds);
-
+        int strikeBonus = 0;
+        int spareBonus = 0;
         for (int i = 0; i < currentRound; i++){
-            System.out.println("getTotalPoints: " + rounds[i].getTotalPoints());
-            if(currentTossDone == 2){
-                if(i >= 1) {
-                    System.out.println("currentPoints: " + rounds[i].getTotalPoints());
-                    currentSumOfAllPlayedRounds += rounds[i].getTotalPoints();
-                    rounds[i].setCurrentSummedUpTotalPoints(currentSumOfAllPlayedRounds);
-                }else{
-                    currentSumOfAllPlayedRounds = rounds[i].getTotalPoints();
-                    rounds[i].setCurrentSummedUpTotalPoints(currentSumOfAllPlayedRounds);
+            if(rounds[i].hasStrike){
+                strikeBonus = calculateSumForStrike(i);
+
+
+                if(i == 0){
+                    rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints() + strikeBonus);
+                }else {
+                    rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints() +
+                            rounds[i - 1].getCurrentSummedUpTotalPoints());
+
+                    rounds[i].setTotalPoints(rounds[i - 1].getCurrentSummedUpTotalPoints() + strikeBonus);
+                    rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints());
+                }
+
+            }else if(rounds[i].hasSpare){
+                spareBonus = calculateSumForSpare(i);
+                if(i == 0){
+                    rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints() + spareBonus);
+                }else {
+                    rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints() +
+                            rounds[i - 1].getCurrentSummedUpTotalPoints());
+                    rounds[i].setTotalPoints(spareBonus);
+                    rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints() +
+                            rounds[i - 1].getCurrentSummedUpTotalPoints());
+                }
+            }else{
+                rounds[i].setTotalPoints(rounds[i].getAmountPinsHitOnFirstToss() +
+                        rounds[i].getAmountPinsHitOnSecondToss());
+                if(i == 0){
+                    rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints());
+                }else {
+                    rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints() +
+                            rounds[i - 1].getCurrentSummedUpTotalPoints());
                 }
             }
         }
-        System.out.println("currentSum: " + currentSumOfAllPlayedRounds);
+    }
+
+    public int calculateSumForStrike(int round){
+        int strikeBonus;
+        if(rounds[round + 1].hasStrike){
+            strikeBonus = calculateSumForStrike(rounds[round + 1].getId());
+        }else if (rounds[round + 1].hasSpare){
+            strikeBonus = calculateSumForSpare(rounds[round + 1].getId());
+        }else strikeBonus = rounds[round + 1].getAmountPinsHitOnFirstToss() + rounds[round + 1].getAmountPinsHitOnSecondToss() + 10;
+        return strikeBonus;
+    }
+
+    public int calculateSumForSpare(int round){
+        int spareBonus;
+        if(rounds[round + 1].hasStrike){
+            spareBonus = calculateSumForStrike(rounds[round + 1].getId());
+        }else spareBonus = rounds[round + 1].getAmountPinsHitOnFirstToss() + 10;
+        return spareBonus;
     }
 }
