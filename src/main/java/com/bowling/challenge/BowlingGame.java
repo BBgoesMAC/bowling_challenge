@@ -1,50 +1,52 @@
 package com.bowling.challenge;
 
-import java.util.Random;
 import java.util.Scanner;
 
-public class BowlingChallenge {
+public class BowlingGame {
 
     Round[] rounds = new Round[10];
-    BowlingChallenge bowlingGame;
     int currentRound;
-    int currentTossDone;
-    int bonusCounter = 0;
-    Scanner scanner;
+
+    private int currentTossDone;
+
+    private final int STRIKE_AFTER_STRIKE_BONUS = 20, STRIKE_AFTER_SPARE_BONUS = 20, SPARE_AFTER_STRIKE_BONUS = 20;
+    private final int STRIKE_BONUS = 10, SPARE_BONUS = 10;
+    private final int DOUBLE_STRIKE_AFTER_STRIKE_BONUS = 30;
 
     public static void main(String[] args){
+        System.out.println("Welcome to the Bowling Challenge!");
         while(true) {
-            System.out.println("Welcome to the Bowling Challenge!");
             System.out.println(" ");
             Scanner scanUserInputNewGame = new Scanner(System.in);
-            System.out.println("--- Press any key to start a new game ---");
+            System.out.println("--- Press enter to start a new game ---");
             while(!scanUserInputNewGame.hasNextLine()) {
             }
-            BowlingChallenge bowlingGame = new BowlingChallenge();
+            BowlingGame bowlingGame = new BowlingGame();
             bowlingGame.startGame();
 
 
             bowlingGame.initBowlingGame();
-            System.out.println("Thank you for playing the Bowling Challenge");
-            scanUserInputNewGame = new Scanner(System.in);
-            System.out.println("--- Press any key to restart the game ---");
-            while(!scanUserInputNewGame.hasNextLine()) {
-            }
+            System.out.println("==> Thank you for playing the Bowling Challenge");
         }
 
     }
 
-    public void startGame(){
+    /**
+     * Starts a new game and controls the user input.
+     * Before tosses, always waits for the user to press enter.
+     */
+    private void startGame(){
+        Scanner scanUserInput;
         initBowlingGame();
+
         for (int i = 0; i < 10; i++) {
-            System.out.println("Toss the bowling ball by pressing enter");
-            scanner = new Scanner(System.in);
-            while(!scanner.hasNextLine()) {
+            System.out.println("=> Toss the bowling ball by pressing enter ...");
+            scanUserInput = new Scanner(System.in);
+            while(!scanUserInput.hasNextLine()) {
             }
 
             rounds[i].doFirstToss();
             currentTossDone = 1;
-
 
             if (currentRound != 1){
                 calculateSums(currentRound);
@@ -52,48 +54,49 @@ public class BowlingChallenge {
             displayResultsTable();
 
             // skip second toss if the first toss was a strike
-            if(!rounds[i].hasStrike){
+            if(rounds[i].hasStrike){
+                System.out.println(" ----- !!!! ---- ITS A STRIKE ----- !!!! ----");
+                System.out.println("");
 
-                System.out.println("Second toss? (press enter)");
-                scanner = new Scanner(System.in);
-                while(!scanner.hasNextLine()) {
+            }else{
+                System.out.println("=> Toss the bowling ball by pressing enter ...");
+                scanUserInput = new Scanner(System.in);
+                while(!scanUserInput.hasNextLine()) {
                 }
                 rounds[i].doSecondToss();
                 currentTossDone = 2;
 
                 // always update the sums after the second toss
                 calculateSums(currentRound);
+                displayResultsTable();
                 if(rounds[i].hasSpare){
                     System.out.println(" --- NICE SPARE --- ");
                     System.out.println(" ");
                 }
-                displayResultsTable();
-            }else{
-                System.out.println(" ----- !!!! ---- ITS A STRIKE ----- !!!! ----");
-                System.out.println(" ");
-
             }
 
+            // in the last round, check if there was a strike or a spare
+            // if so, the user gets a bonus toss
             if(currentRound == 10 && rounds[i].hasStrike){
                 System.out.println("You earned a bonus toss! (press enter to toss)");
-                scanner = new Scanner(System.in);
-                while(!scanner.hasNextLine()) {
+                scanUserInput = new Scanner(System.in);
+                while(!scanUserInput.hasNextLine()) {
                 }
                 rounds[i].doFirstBonusTossAfterStrike();
-                currentTossDone++;
+                currentTossDone = 2;
                 displayResultsTable();
 
                 System.out.println("Do your second bonus toss! (press enter)");
-                scanner = new Scanner(System.in);
-                while(!scanner.hasNextLine()) {
+                scanUserInput = new Scanner(System.in);
+                while(!scanUserInput.hasNextLine()) {
                 }
                 rounds[i].doSecondBonusTossAfterStrike();
-                currentTossDone++;
+                currentTossDone = 3;
                 displayResultsTable();
             }else if(currentRound == 10 && rounds[i].hasSpare){
                 System.out.println("You earned a bonus toss! (press enter)");
-                scanner = new Scanner(System.in);
-                while(!scanner.hasNextLine()) {
+                scanUserInput = new Scanner(System.in);
+                while(!scanUserInput.hasNextLine()) {
                 }
                 rounds[i].doBonusTossAfterSpare();
                 currentTossDone = 3;
@@ -104,7 +107,11 @@ public class BowlingChallenge {
         }
     }
 
-    public void initBowlingGame(){
+    /**
+     * Initializes a new game.
+     * To do so, we need to instantiate and initialize 10 Rounds.
+     */
+    void initBowlingGame(){
 
         for(int i = 0; i < rounds.length; i++) {
             Round round = new Round();
@@ -115,7 +122,11 @@ public class BowlingChallenge {
         currentRound = 1;
     }
 
-    public void displayResultsTable(){
+
+    /**
+     * Displays the current results as ascii table and prints it to the console.
+     */
+    private void displayResultsTable(){
 
         System.out.println(
                 "________________________ ______________________________________\n" +
@@ -148,23 +159,45 @@ public class BowlingChallenge {
                         "'-----'-----'-----'-----'-----'-----'-----'-----'-----'-------'");
     }
 
-    public String displayResultForToss(int round, int toss){
+    /**
+     * Every round has two toss results.
+     * Round 10 can have three toss results if there was a spare or a strike
+     *
+     * @param round the round to request the results for
+     * @param toss the toss within the round to request results for
+     * @return the results for the requested round and toss as a string.
+     *         This can either be an X as a marker for a strike,
+     *         a / as a marker for a spare,
+     *         an empty space if there are currently no results(e.g. round not played yet)
+     *         or the points as a string.
+     */
+    private String displayResultForToss(int round, int toss){
+
+        // round 1 is stored at round[0], therefore round must be decreased to access the round
         int arrayIndexForCurrentRound = round - 1;
 
         if(toss == 1){
             if(rounds[arrayIndexForCurrentRound].hasStrike){
                 return "X";
             }else if(rounds[arrayIndexForCurrentRound].getId() > currentRound){
+
+                // round not played yet
                 return " ";
+
             }else return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnFirstToss();
         }else if(toss == 2){
             if(rounds[arrayIndexForCurrentRound].hasSpare){
-                return "/";
+
+                // if we are in last round and there was a strike on the first toss,
+                // a spare means that we must display a strike
+                if(currentRound == 10 && rounds[arrayIndexForCurrentRound].hasStrike && currentTossDone == 2){
+                    return "X";
+                }else return "/";
             }else if(rounds[arrayIndexForCurrentRound].getId() > currentRound||
                     (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1)) {
+                // do not display second toss if we have not reached this round yet
                 return " ";
-            }else if(rounds[arrayIndexForCurrentRound].hasStrike ||
-                    (rounds[arrayIndexForCurrentRound].hasStrike && currentRound != 10)){
+            }else if(rounds[arrayIndexForCurrentRound].hasStrike && round != 10){
                 // if first toss was a strike only display value for second toss if in round 10
                 return " ";
             }else return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnSecondToss();
@@ -173,46 +206,54 @@ public class BowlingChallenge {
                 return "X";
             } else if (currentRound == 10 && (
                     (rounds[9].hasSpare && currentTossDone == 3) ||
-                            (rounds[9].hasStrike && currentTossDone == 3) ||
-                            (!rounds[9].hasStrike && !rounds[9].hasSpare && currentTossDone == 2))) {
+                            (rounds[9].hasStrike && currentTossDone == 3))) {
                 return "" + rounds[arrayIndexForCurrentRound].getAmountPinsHitOnBonusToss();
-            } else if (currentRound != 10) {
-                return " ";
-            }
+            } else return " ";
+
         }else throw new IllegalArgumentException("bad value for toss passed");
-        return " ";
+        //return " ";
     }
 
-    public String displayTotalPointsForRound(int round) {
+    /**
+     * @param round the current round the user is in
+     * @return returns the string of total points which must be displayed for the passed round
 
-        int arrayIndexForCurrentRound = round - 1;
-        System.out.println("last strike: " + rounds[arrayIndexForCurrentRound].hasStrike);
-        System.out.println("currentTossDone: " + currentTossDone);
-        System.out.println("");
-        
+     */
+    private String displayTotalPointsForRound(int round) {
+
+        // round 1 is stored in array[0]
+        int roundIndex = round - 1;
         if (round != 10){
-            if (rounds[arrayIndexForCurrentRound].getId() > currentRound ||
-                    (rounds[arrayIndexForCurrentRound].getId() == currentRound && currentTossDone == 1)) {
+            if (rounds[roundIndex].getId() > currentRound ||
+                    (rounds[roundIndex].getId() == currentRound && currentTossDone == 1)) {
                 return " ";
             } else if (currentTossDone == 2 ){
                 // wait for bonus toss in round 10 before displaying the total points
-                return "" + rounds[arrayIndexForCurrentRound].getCurrentSummedUpTotalPoints();
+                return "" + rounds[roundIndex].getCurrentSummedUpTotalPoints();
             } else
-                return "" + rounds[arrayIndexForCurrentRound].getCurrentSummedUpTotalPoints();
-        }else if(((rounds[arrayIndexForCurrentRound].hasStrike || rounds[arrayIndexForCurrentRound].hasSpare) &&
+                return "" + rounds[roundIndex].getCurrentSummedUpTotalPoints();
+        }else if(((rounds[roundIndex].hasStrike || rounds[roundIndex].hasSpare) &&
             currentTossDone != 3) || currentTossDone == 1){
             return " ";
         }else if (currentRound == 10){
-            return "" + rounds[arrayIndexForCurrentRound].getCurrentSummedUpTotalPoints();
+            return "" + rounds[roundIndex].getCurrentSummedUpTotalPoints();
         }else return "";
     }
 
-    public void calculateSums(int currentRound){
-        int strikeBonus = 0;
-        int spareBonus = 0;
+    /**
+     * Calculates the summed up total points for each round and stores it in the round
+     * As a strike or spare can impact the previous sum, e.g. strike followed by strike + spare
+     * this method iterates over all rounds and updates their sum.
+     * @param currentRound the current round that is played. Only update round 1 up to currentRound
+     *                     as the rounds > currentRound are all 0
+     */
+    private void calculateSums(int currentRound){
+        int strikeBonus;
+        int spareBonus;
         for (int i = 0; i < currentRound; i++){
+
             if(rounds[i].hasStrike){
-                strikeBonus = calculateSumForStrike(i);
+                strikeBonus = calculateStrikeBonus(i);
                 if(i == 0){
                     rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints() + strikeBonus);
                 }else {
@@ -224,7 +265,7 @@ public class BowlingChallenge {
                 }
 
             }else if(rounds[i].hasSpare){
-                spareBonus = calculateSumForSpare(i);
+                spareBonus = calculateSpareBonus(i);
                 if(i == 0){
                     rounds[i].setCurrentSummedUpTotalPoints(rounds[i].getTotalPoints() + spareBonus);
                 }else {
@@ -247,40 +288,58 @@ public class BowlingChallenge {
         }
     }
 
-    public int calculateSumForStrike(int round){
+    /**
+     * Calculates the bonus sum in case of a strike in round passed as param
+     * @param round the round for which the strike bonus is calculated
+     * @return returns the sum of the strike bonus.
+     */
+    int calculateStrikeBonus(int round){
         int strikeBonus;
+        // check if in last round
         if(round + 2 > 9){
             if(rounds[9].hasStrike){
-                strikeBonus = 20 + rounds[9].getAmountPinsHitOnSecondToss();
-            }else if(rounds[9].getAmountPinsHitOnSecondToss() == 10){
-                strikeBonus = 30;
+                strikeBonus = STRIKE_AFTER_STRIKE_BONUS + rounds[9].getAmountPinsHitOnSecondToss();
+            }else if(rounds[9].hasSpare){
+                //
+                strikeBonus = DOUBLE_STRIKE_AFTER_STRIKE_BONUS;
             }else{
-                strikeBonus = 10 + rounds[9].getAmountPinsHitOnFirstToss() + rounds[9].getAmountPinsHitOnSecondToss();
+                strikeBonus = STRIKE_BONUS + rounds[9].getAmountPinsHitOnFirstToss() + rounds[9].getAmountPinsHitOnSecondToss();
             }
         }else if(rounds[round + 1].hasStrike) {
+            // after strike, there is another strike
                 if (rounds[round + 2].hasStrike) {
-                    strikeBonus = 30;
+                    // strike followed by two other strikes
+                    strikeBonus = DOUBLE_STRIKE_AFTER_STRIKE_BONUS;
                 } else {
-                   strikeBonus = 20 + rounds[round + 2].getAmountPinsHitOnFirstToss();
+                    // strike followed by strike followed by spare -> take first toss of round with spare into account
+                   strikeBonus = STRIKE_AFTER_STRIKE_BONUS + rounds[round + 2].getAmountPinsHitOnFirstToss();
                 }
         }else if(rounds[round + 1].hasSpare){
-            strikeBonus = 20;
+            // strike followed by spare
+            strikeBonus = SPARE_AFTER_STRIKE_BONUS;
         }else {
-            strikeBonus = 10 + rounds[round + 1].getAmountPinsHitOnFirstToss() + rounds[round + 1].getAmountPinsHitOnSecondToss();
+            // strike bonus followed by neither strike nor spare
+            strikeBonus = STRIKE_BONUS + rounds[round + 1].getAmountPinsHitOnFirstToss()
+                    + rounds[round + 1].getAmountPinsHitOnSecondToss();
         }
         return strikeBonus;
     }
 
-    public int calculateSumForSpare(int round){
+    /**
+     * Calculates the bonus sum in case of a spare in round passed as param
+     * @param round the roundArrayIndex for which the strike bonus is calculated
+     * @return returns the sum of the spare bonus
+     */
+    int calculateSpareBonus(int round){
         int spareBonus;
         if(round + 1 > 9){
             if(rounds[9].hasStrike){
-                spareBonus = 20;
-            }else spareBonus = 10 + rounds[9].getAmountPinsHitOnFirstToss();
+                spareBonus = STRIKE_AFTER_SPARE_BONUS;
+            }else spareBonus = SPARE_BONUS + rounds[9].getAmountPinsHitOnFirstToss();
 
         }else if(rounds[round + 1].hasStrike){
-            spareBonus = 20;
-        }else spareBonus = rounds[round + 1].getAmountPinsHitOnFirstToss() + 10;
+            spareBonus = STRIKE_AFTER_SPARE_BONUS;
+        }else spareBonus = SPARE_BONUS + rounds[round + 1].getAmountPinsHitOnFirstToss();
         return spareBonus;
     }
 }

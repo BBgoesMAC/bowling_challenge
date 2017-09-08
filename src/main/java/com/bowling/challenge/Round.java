@@ -2,106 +2,96 @@ package com.bowling.challenge;
 
 import java.util.Random;
 
-public class Round {
+class Round {
 
-    int id;
     int amountPinsHitOnFirstToss;
     int amountPinsHitOnSecondToss;
-    int totalPoints;
-    int currentSummedUpTotalPoints;
     int amountPinsHitOnBonusToss;
-
-    int bonusPoints;
 
     boolean hasStrike;
     boolean hasSpare;
 
-    public Round(){
-        this.hasStrike = false;
-        this.hasSpare = false;
-        this.bonusPoints = 0;
-    }
+    int id;
+    int totalPoints;
+    int currentSummedUpTotalPoints;
 
-    public Round(int id){
-        this.id = id;
+    Round(){
         this.hasStrike = false;
         this.hasSpare = false;
     }
 
-    public void setId(int id){
+    void setId(int id){
         this.id = id;
     }
 
-    public void setAmountPinsHitOnFirstToss(int amountPinsHitOnFirstToss){
+    void setAmountPinsHitOnFirstToss(int amountPinsHitOnFirstToss){
         this.amountPinsHitOnFirstToss = amountPinsHitOnFirstToss;
-        if(amountPinsHitOnFirstToss == 10){
-            hasStrike = true;
-        }
+        checkForStrike(amountPinsHitOnFirstToss);
     }
 
-    public void setAmountPinsHitOnSecondToss(int amountPinsHitOnSecondToss){
+    void setAmountPinsHitOnSecondToss(int amountPinsHitOnSecondToss){
         this.amountPinsHitOnSecondToss = amountPinsHitOnSecondToss;
-        if(amountPinsHitOnSecondToss + amountPinsHitOnFirstToss == 10){
-            hasSpare = true;
-        }
+        checkForSpare(amountPinsHitOnSecondToss + amountPinsHitOnFirstToss);
     }
 
-    public void setAmountPinsHitOnBonusToss(int amountPinsHitOnBonusToss){
+    void setAmountPinsHitOnBonusToss(int amountPinsHitOnBonusToss){
         this.amountPinsHitOnBonusToss = amountPinsHitOnBonusToss;
     }
 
-    public void setTotalPoints(int totalPoints){
+    void setTotalPoints(int totalPoints){
         this.totalPoints = totalPoints;
     }
 
-    public void setCurrentSummedUpTotalPoints(int currentSummedUpTotalPoints){
+    void setCurrentSummedUpTotalPoints(int currentSummedUpTotalPoints){
         this.currentSummedUpTotalPoints = currentSummedUpTotalPoints;
     }
 
-    public void hasStrike(boolean hasStrike){
+    void hasStrike(boolean hasStrike){
         this.hasStrike = hasStrike;
     }
 
-    public void hasSpare(boolean hasSpare){
+    void hasSpare(boolean hasSpare){
         this.hasSpare = hasSpare;
     }
 
-    public int getId(){
+    int getId(){
         return id;
     }
 
-    public int getAmountPinsHitOnFirstToss(){
+    int getAmountPinsHitOnFirstToss(){
         return amountPinsHitOnFirstToss;
     }
 
-    public int getAmountPinsHitOnSecondToss(){
+    int getAmountPinsHitOnSecondToss(){
         return amountPinsHitOnSecondToss;
     }
 
-    public int getAmountPinsHitOnBonusToss(){
+    int getAmountPinsHitOnBonusToss(){
         return amountPinsHitOnBonusToss;
     }
 
-    public int getTotalPoints(){
+    int getTotalPoints(){
         return totalPoints;
     }
 
-    public int getCurrentSummedUpTotalPoints(){
+    int getCurrentSummedUpTotalPoints(){
         return currentSummedUpTotalPoints;
     }
 
-    public int getBonusPoints(){
-        return bonusPoints;
+    void checkForStrike(int amountPinsHit){
+        hasStrike = (amountPinsHit == 10);
     }
 
-
+    void checkForSpare(int amountPinsHit){
+        hasSpare = (amountPinsHit == 10);
+    }
 
     /**
      * Return a random int value in the range between zero and 10.
      * In the first toss all(10) pins are available.
      * Therefore, the amount of knocked pins can be between zero and 10.
      */
-    public void doFirstToss(){
+    void doFirstToss(){
         setAmountPinsHitOnFirstToss( getRandomInt(9, 10) );
 
         //check for strike
@@ -110,7 +100,7 @@ public class Round {
         }
     }
 
-    public void doSecondToss(){
+    void doSecondToss(){
         setAmountPinsHitOnSecondToss(
                 getRandomInt(0, 10 - getAmountPinsHitOnFirstToss()));
 
@@ -121,23 +111,23 @@ public class Round {
         }
     }
 
-    public void doFirstBonusTossAfterStrike(){
+    void doFirstBonusTossAfterStrike(){
         setAmountPinsHitOnSecondToss(
                 getRandomInt(0, 10));
     }
 
-    public void doSecondBonusTossAfterStrike(){
+    void doSecondBonusTossAfterStrike(){
+        setAmountPinsHitOnBonusToss(
+                getRandomInt(getAmountPinsHitOnSecondToss(), 10));
+    }
+
+
+    void doBonusTossAfterSpare(){
         setAmountPinsHitOnBonusToss(
                 getRandomInt(0, 10));
     }
 
-
-    public void doBonusTossAfterSpare(){
-        setAmountPinsHitOnBonusToss(
-                getRandomInt(0, 10));
-    }
-
-    public boolean knockedAllPins(int knockedPins){
+    boolean knockedAllPins(int knockedPins){
         return knockedPins == 10;
     }
 
@@ -148,14 +138,13 @@ public class Round {
      * @param   max     the maximum integer as upper limit
      * @return          return a random integer in the passed range
      */
-    public int getRandomInt(int min, int max){
+    int getRandomInt(int min, int max){
 
         if (min > max) {
             throw new IllegalArgumentException("max must be greater than min");
         }
 
         Random randomValue = new Random();
-        int randomInt = randomValue.nextInt((max - min) + 1) + min;
-        return randomInt;
+        return randomValue.nextInt((max - min) + 1) + min;
     }
 }
